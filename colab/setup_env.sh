@@ -7,8 +7,11 @@ set -e
 pip install -q torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 pip install -q diffusers transformers accelerate pillow
 pip install -q fastapi uvicorn nest-asyncio
+pip install -q insightface opencv-python onnxruntime onnxruntime-gpu
+# Download buffalo_l face model for insightface
+python3 -c "import insightface; insightface.model_zoo.get_model('buffalo_l', download=True)" 2>/dev/null || true
 
-# Install cloudflared binary (not pip package)
+# Install cloudflared binary
 ARCH=$(uname -m)
 if [ "$ARCH" = "x86_64" ]; then
   curl -sL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
