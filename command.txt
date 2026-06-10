@@ -1,0 +1,52 @@
+========================================
+COLAB CELL 1 - Run this first
+========================================
+Copy everything below into a Colab cell and run it:
+
+import subprocess
+
+!apt-get install -yqq openssh-server > /dev/null 2>&1
+!mkdir -p /var/run/sshd
+!echo "root:colab123" | chpasswd
+
+with open("/etc/ssh/sshd_config", "w") as f:
+    f.write("Port 2223\nPermitRootLogin yes\nPasswordAuthentication yes\n")
+
+!ssh-keygen -A
+subprocess.Popen(["/usr/sbin/sshd", "-p", "2223"])
+print("SSH started on port 2223")
+
+========================================
+COLAB CELL 2 - Run this in a NEW cell AFTER Cell 1
+========================================
+Copy everything below into a NEW Colab cell and run it:
+
+import subprocess, re, time, urllib.request
+
+# Download bore
+arch = subprocess.run(["uname", "-m"], capture_output=True, text=True).stdout.strip()
+url = ""
+if arch == "x86_64":
+    url = "https://github.com/ekzhang/bore/releases/download/v0.5.2/bore-v0.5.2-x86_64-unknown-linux-musl.tar.gz"
+elif "aarch64" in arch:
+    url = "https://github.com/ekzhang/bore/releases/download/v0.5.2/bore-v0.5.2-aarch64-unknown-linux-musl.tar.gz"
+
+if url:
+    !curl -sL "$url" | tar xz -C /usr/local/bin/ bore 2>/dev/null
+    !chmod +x /usr/local/bin/bore
+
+proc = subprocess.Popen(
+    ["bore", "local", "2223", "--to", "bore.pub"],
+    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+)
+
+for line in proc.stdout:
+    line = line.strip()
+    print(line)
+    if "listening at" in line:
+        port = line.split(":")[-1]
+        print(f"\n{'='*55}")
+        print(f"  SSH: ssh -p {port} root@bore.pub")
+        print(f"  Pass: colab123")
+        print(f"{'='*55}")
+        break
