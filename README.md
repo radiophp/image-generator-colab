@@ -17,19 +17,21 @@ Your Browser  -->  Next.js (localhost:3000)
 ## Project Structure
 
 ```
-├── src/app/page.js              # Frontend UI
-├── src/app/api/generate/route.js # Backend API proxy
-├── colab/
-│   ├── 01_ssh_setup.py           # Colab: starts SSH + bore tunnel
-│   ├── 02_setup_env.sh           # SSH: installs Python deps
-│   ├── 03_api_app.py             # FastAPI app (model + endpoints)
-│   ├── 04_run_api.py             # Launches uvicorn + cloudflared
-│   ├── 05_download_model.py      # Downloads SD weights (run once)
-│   └── upload_and_run.sh         # Uploads .py to Colab and runs it
-├── run_on_colab.sh               # Run commands on Colab via SSH
-├── command.txt                   # Colab cells (copy-paste)
-├── .env                          # SSH credentials (host, port, password)
-└── .env.local                    # API URL for Next.js
+├── ui/                          # Next.js frontend
+│   ├── src/app/page.js          #   Frontend UI
+│   ├── src/app/api/generate/    #   Backend API proxy
+│   ├── package.json
+│   └── .env.local               #   API URL for Next.js
+├── colab/                       # Colab backend scripts
+│   ├── 01_ssh_setup.py          #   Starts SSH + bore tunnel
+│   ├── setup_env.sh             #   Installs Python deps
+│   ├── api_app.py               #   FastAPI app (model + endpoints)
+│   ├── run_api.py               #   Launches uvicorn + cloudflared
+│   ├── download_model.py        #   Downloads SD weights (run once)
+│   └── upload_and_run.sh        #   Uploads .py to Colab and runs it
+├── run_on_colab.sh              # Run commands on Colab via SSH
+├── command.txt                  # Colab cells (copy-paste)
+└── .env                         # SSH credentials
 ```
 
 ## Setup
@@ -53,7 +55,7 @@ COLAB_SSH_PASS=colab123
 ### 3. Install deps on Colab
 
 ```bash
-./run_on_colab.sh colab/setup_env.py
+./run_on_colab.sh colab/setup_env.sh
 ```
 
 ### 4. Download model (first time only)
@@ -75,12 +77,14 @@ Copy the cloudflare URL it prints.
 ### 6. Configure .env.local
 
 ```bash
+# ui/.env.local
 COLAB_URL=https://your-tunnel.trycloudflare.com
 ```
 
 ### 7. Start Next.js
 
 ```bash
+cd ui
 npm run dev
 ```
 
